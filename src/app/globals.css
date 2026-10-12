@@ -1,0 +1,127 @@
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+@source "../../src/**/*.{js,ts,jsx,tsx,mdx}";
+
+/* 
+  @tailwind directives are not needed with @import "tailwindcss" in v4,
+  but keeping the layer structure effectively. 
+*/
+@theme {
+  --font-sans: Arial, Helvetica, sans-serif;
+}
+
+:root {
+  --background: #050505;
+  --foreground: #ededed;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #050505;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+@-webkit-keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.hsjad65h {
+  background: linear-gradient(90deg,
+      var(--token-cf9eabfa-d313-4c94-941c-19c2f5bf1c6c, rgb(111, 141, 194)) 0%,
+      var(--token-ab4f91f1-8b85-4b37-a1f1-c1cc024c302e, rgb(33, 62, 108)) 100%);
+  border-color: rgb(53, 69, 95);
+}
+
+.ucyr45v {
+  background: radial-gradient(75% 63.6% at 50% 2.5%,
+      rgb(0, 50, 125) 0%,
+      rgba(99, 102, 241, 0) 100%);
+}
+
+.mvusi45ff {
+  filter: drop-shadow(0px -2px 10px black);
+  image-rendering: auto;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+
+.ovuisuf {
+  background: radial-gradient(75% 63.6% at 50% 2.5%,
+      rgb(36, 115, 236) 0%,
+      rgba(99, 102, 241, 0) 100%);
+  opacity: 0.4;
+  bottom: 0;
+  flex: none;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 1;
+}
+
+.turn-white {
+  filter: brightness(0) invert(1);
+}
+
+.text-color-change-animation {
+  font-family: arial black;
+  font-size: 60px;
+  background-image: linear-gradient(to right,
+      rgb(154, 203, 255),
+      rgb(255, 183, 214),
+      rgb(231, 231, 231));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow-animation 300s linear infinite;
+}
+
+@keyframes rainbow-animation {
+  to {
+    background-position: 4500vh;
+  }
+}
+
+button {
+  cursor: pointer;
+}
+/* Menu à ancres : défilement doux, et chaque partie s'arrête sous le menu fixe */
+html {
+  scroll-behavior: smooth;
+}
+
+section[id] {
+  scroll-margin-top: 72px;
+}
