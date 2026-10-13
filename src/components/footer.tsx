@@ -18,7 +18,7 @@ const Footer = () => {
   const socialLinks = [
     { icon: <FaGithub />, url: identity.githubUrl, label: "GitHub" },
     ...(identity.linkedinUrl ? [{ icon: <FaLinkedin />, url: identity.linkedinUrl, label: "LinkedIn" }] : []),
-    { icon: <FaEnvelope />, url: identity.emailUrl, label: "E-mail" },
+    { icon: <FaEnvelope />, url: `mailto:${identity.email}`, label: "E-mail" },
   ];
 
   return (
