@@ -5,7 +5,7 @@ export default function SocialFixedBar() {
   return (
     <div className="fixed right-3 md:right-5 bottom-0 z-30">
       <div className="flex flex-col justify-center items-center ">
-        <a href={`mailto:${identity.email}`} aria-label="M'écrire un e-mail">
+        <a href={identity.emailUrl} target="_blank" rel="noopener noreferrer" aria-label="M'écrire un e-mail">
           <Image width={30} height={30} src="/images/icons/mail.svg" alt="E-mail" className="w-6 md:w-8 mb-2 md:my-2 transition-all hover:opacity-40 transform hover:scale-75" />
         </a>
         {identity.linkedinUrl && (

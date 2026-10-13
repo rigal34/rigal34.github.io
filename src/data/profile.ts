@@ -14,6 +14,12 @@ export const identity = {
     title: "Développeur full stack",
     city: "Montpellier",
     email: "rigalbruno30@gmail.com",
+    // Lien du bouton e-mail. Il ouvre Gmail dans un nouvel onglet, avec un
+    // message deja adresse a Bruno.
+    // Pour revenir au comportement standard — la messagerie par defaut du
+    // visiteur, quelle qu'elle soit — remplacer la ligne ci-dessous par :
+    //     emailUrl: "mailto:rigalbruno30@gmail.com",
+    emailUrl: "https://mail.google.com/mail/?view=cm&fs=1&to=rigalbruno30@gmail.com",
     githubUser: "rigal34",
     githubUrl: "https://github.com/rigal34",
     linkedinUrl: "https://www.linkedin.com/in/bruno-rigal-dev/",

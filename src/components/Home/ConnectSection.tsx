@@ -148,7 +148,7 @@ const ConnectSection = () => {
                             </p>
 
                             <div className="flex flex-col gap-4">
-                                <SocialLink name="E-mail direct" icon={<FaEnvelope />} url={`mailto:${identity.email}`} color="neon-cyan" detail={identity.email} />
+                                <SocialLink name="E-mail direct" icon={<FaEnvelope />} url={identity.emailUrl} color="neon-cyan" detail={identity.email} />
                                 {identity.linkedinUrl && (
                                     <SocialLink name="Signal LinkedIn" icon={<FaLinkedin />} url={identity.linkedinUrl} color="neon-purple" detail="Voir mon profil" />
                                 )}
