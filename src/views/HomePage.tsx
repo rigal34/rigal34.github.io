@@ -26,9 +26,14 @@ export default function HomePage({ github }: Props) {
         <OriginStory />
         <RecentProjectsNew />
         <TechArsenal />
-        {/* Parcours + Formations : éclairs en arrière-plan, mêmes espacements qu'avant */}
+        {/* Parcours + Formations : éclairs en arrière-plan, mêmes espacements qu'avant.
+            Aucun éclair autour de la roue ni de la carte EPSI : la zone commence en dessous
+            et s'arrête sous le titre « Protocole académique ». */}
         <div className="relative flex flex-col gap-8 md:gap-12">
-          <LightningBackground />
+          <LightningBackground
+            startBelow={['#parcours [class~="lg:sticky"]', '#parcours [class~="space-y-8"] > :first-child']}
+            endAt='#formations > [class~="mb-12"]'
+          />
           <RecentWorkNew />
           <AcademicLog />
         </div>

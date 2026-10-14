@@ -3,17 +3,24 @@
 import React, { useEffect, useRef } from "react";
 
 /*
- * Éclairs en arrière-plan (derrière les parties Parcours et Formations).
- * De temps en temps, un éclair part du bord gauche, du bord droit,
- * ou traverse tout l'écran d'un bord à l'autre.
- * - Forme : trait brisé calculé au hasard (subdivisions successives) + ramifications.
- * - Rendu : halo large, halo moyen, cœur blanc, et un léger éclat qui éclaire le fond.
- * - Il tourne seulement quand la partie est visible, et pas du tout si le visiteur
- *   a demandé moins d'animations dans son système.
+ * Éclairs en arrière-plan, uniquement dans une bande de la page :
+ * - elle commence SOUS les éléments listés dans `startBelow` (la roue et la carte EPSI),
+ * - elle s'arrête au bas de l'élément `endAt` (le titre « Protocole académique »).
+ * Au-dessus et en dessous, aucun éclair.
+ *
+ * Tant que la roue ou la carte EPSI est visible à l'écran, aucun éclair n'est lancé.
+ * Pour ne rien ralentir : chaque éclair est dessiné UNE SEULE FOIS dans une image en mémoire
+ * (halo sans ombre portée), puis on ne fait que l'afficher plus ou moins fort à chaque image.
+ * Rien ne tourne quand la zone n'est pas à l'écran, ni si le visiteur a demandé moins d'animations.
  */
 
 type Point = { x: number; y: number };
 type Bolt = { main: Point[]; branches: { pts: Point[]; strength: number }[]; mid: Point };
+
+type Props = {
+    startBelow: string[];
+    endAt: string;
+};
 
 // Trait brisé entre a et b : on coupe chaque segment en deux et on décale le milieu
 function fractalPath(a: Point, b: Point, roughness: number, detail: number): Point[] {
@@ -27,7 +34,6 @@ function fractalPath(a: Point, b: Point, roughness: number, detail: number): Poi
             const dx = q.x - p.x;
             const dy = q.y - p.y;
             const len = Math.hypot(dx, dy) || 1;
-            // décalage perpendiculaire au segment
             const nx = -dy / len;
             const ny = dx / len;
             const shift = (Math.random() - 0.5) * offset;
@@ -41,35 +47,32 @@ function fractalPath(a: Point, b: Point, roughness: number, detail: number): Poi
 
 function makeBolt(w: number, h: number): Bolt {
     const kind = Math.random();
-    const y1 = h * (0.08 + Math.random() * 0.84);
+    const y1 = h * (0.1 + Math.random() * 0.8);
+    const clampY = (y: number) => Math.max(h * 0.05, Math.min(h * 0.95, y));
     let a: Point;
     let b: Point;
     if (kind < 0.4) {
         // depuis le bord gauche, vers le vide de gauche
         a = { x: -10, y: y1 };
-        b = { x: w * (0.22 + Math.random() * 0.25), y: y1 + (Math.random() - 0.5) * h * 0.35 };
+        b = { x: w * (0.22 + Math.random() * 0.25), y: clampY(y1 + (Math.random() - 0.5) * h * 0.5) };
     } else if (kind < 0.8) {
         // depuis le bord droit
         a = { x: w + 10, y: y1 };
-        b = { x: w * (0.53 + Math.random() * 0.25), y: y1 + (Math.random() - 0.5) * h * 0.35 };
+        b = { x: w * (0.53 + Math.random() * 0.25), y: clampY(y1 + (Math.random() - 0.5) * h * 0.5) };
     } else {
         // d'un bord à l'autre
         a = { x: -10, y: y1 };
-        b = { x: w + 10, y: h * (0.08 + Math.random() * 0.84) };
+        b = { x: w + 10, y: h * (0.1 + Math.random() * 0.8) };
     }
     const span = Math.hypot(b.x - a.x, b.y - a.y);
     const main = fractalPath(a, b, 0.22, Math.max(2, span / 260));
 
-    // ramifications qui partent du tronc
     const branches: Bolt["branches"] = [];
     const count = 2 + Math.floor(Math.random() * 5);
     for (let i = 0; i < count; i++) {
         const start = main[Math.floor(main.length * (0.15 + Math.random() * 0.7))];
-        const dirX = b.x - a.x;
-        const dirY = b.y - a.y;
-        const len = Math.hypot(dirX, dirY) || 1;
-        const angle = Math.atan2(dirY, dirX) + (Math.random() < 0.5 ? -1 : 1) * (0.35 + Math.random() * 0.6);
-        const bl = len * (0.08 + Math.random() * 0.18);
+        const angle = Math.atan2(b.y - a.y, b.x - a.x) + (Math.random() < 0.5 ? -1 : 1) * (0.35 + Math.random() * 0.6);
+        const bl = (span || 1) * (0.08 + Math.random() * 0.18);
         const end = { x: start.x + Math.cos(angle) * bl, y: start.y + Math.sin(angle) * bl };
         branches.push({ pts: fractalPath(start, end, 0.28, Math.max(1.5, bl / 120)), strength: 0.35 + Math.random() * 0.35 });
     }
@@ -83,55 +86,83 @@ function strokePath(ctx: CanvasRenderingContext2D, pts: Point[]) {
     ctx.stroke();
 }
 
-function drawBolt(ctx: CanvasRenderingContext2D, bolt: Bolt, alpha: number, scale: number, w: number) {
-    if (alpha <= 0.01) return;
-    ctx.save();
+// Dessine l'éclair une fois, à pleine intensité, dans une image en mémoire.
+// Le halo est tracé sur une petite image (1/4 de la taille) puis agrandi : l'agrandissement
+// le rend flou et doux, sans le calcul coûteux d'une ombre portée.
+function renderBolt(bolt: Bolt, w: number, h: number, dpr: number, scale: number): HTMLCanvasElement {
+    const off = document.createElement("canvas");
+    off.width = Math.round(w * dpr);
+    off.height = Math.round(h * dpr);
+    const ctx = off.getContext("2d");
+    if (!ctx) return off;
+
+    const q = 0.25;
+    const glow = document.createElement("canvas");
+    glow.width = Math.max(1, Math.round(w * q));
+    glow.height = Math.max(1, Math.round(h * q));
+    const g = glow.getContext("2d");
+    const chunks = 4;
+    const size = Math.ceil(bolt.main.length / chunks);
+    const trace = (c: CanvasRenderingContext2D, width: number, rgb: string, alpha: number) => {
+        for (let k = 0; k < chunks; k++) {
+            const part = bolt.main.slice(k * size, (k + 1) * size + 1);
+            if (part.length < 2) continue;
+            c.strokeStyle = `rgba(${rgb}, ${alpha})`;
+            c.lineWidth = width * (1 - 0.15 * k); // le tronc s'affine en s'éloignant du bord
+            strokePath(c, part);
+        }
+        for (const br of bolt.branches) {
+            c.strokeStyle = `rgba(${rgb}, ${alpha * br.strength})`;
+            c.lineWidth = width * 0.55;
+            strokePath(c, br.pts);
+        }
+    };
+    if (g) {
+        g.setTransform(q, 0, 0, q, 0, 0);
+        g.globalCompositeOperation = "lighter";
+        g.lineJoin = "round";
+        g.lineCap = "round";
+        trace(g, 34 * scale, "0, 200, 255", 0.16);
+        trace(g, 16 * scale, "170, 110, 255", 0.28);
+        trace(g, 7 * scale, "190, 225, 255", 0.5);
+    }
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.globalCompositeOperation = "lighter";
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
 
     // léger éclat qui éclaire le fond autour de l'éclair
     const r = w * 0.45;
-    const g = ctx.createRadialGradient(bolt.mid.x, bolt.mid.y, 0, bolt.mid.x, bolt.mid.y, r);
-    g.addColorStop(0, `rgba(140, 190, 255, ${0.10 * alpha})`);
-    g.addColorStop(1, "rgba(140, 190, 255, 0)");
-    ctx.fillStyle = g;
-    ctx.fillRect(bolt.mid.x - r, bolt.mid.y - r, r * 2, r * 2);
+    const rad = ctx.createRadialGradient(bolt.mid.x, bolt.mid.y, 0, bolt.mid.x, bolt.mid.y, r);
+    rad.addColorStop(0, "rgba(140, 190, 255, 0.10)");
+    rad.addColorStop(1, "rgba(140, 190, 255, 0)");
+    ctx.fillStyle = rad;
+    ctx.fillRect(0, 0, w, h);
 
-    const layers = [
-        { width: 14, color: `rgba(90, 160, 255, ${0.10 * alpha})`, blur: 28, shadow: "rgba(0, 243, 255, 0.9)" },
-        { width: 6, color: `rgba(170, 120, 255, ${0.22 * alpha})`, blur: 16, shadow: "rgba(188, 19, 254, 0.9)" },
-        { width: 2.6, color: `rgba(200, 230, 255, ${0.65 * alpha})`, blur: 8, shadow: "rgba(150, 220, 255, 1)" },
-        { width: 1.1, color: `rgba(255, 255, 255, ${alpha})`, blur: 0, shadow: "transparent" },
-    ];
-    // le tronc s'affine en s'éloignant du bord d'où part l'éclair
-    const chunks = 4;
-    const size = Math.ceil(bolt.main.length / chunks);
-    for (const l of layers) {
-        ctx.strokeStyle = l.color;
-        ctx.shadowBlur = l.blur * scale;
-        ctx.shadowColor = l.shadow;
-        for (let k = 0; k < chunks; k++) {
-            const part = bolt.main.slice(k * size, (k + 1) * size + 1);
-            if (part.length < 2) continue;
-            ctx.lineWidth = l.width * scale * (1 - 0.15 * k);
-            strokePath(ctx, part);
-        }
-    }
-    for (const br of bolt.branches) {
-        for (const l of layers) {
-            ctx.lineWidth = l.width * scale * 0.55;
-            ctx.strokeStyle = l.color.replace(/[\d.]+\)$/, (m) => `${parseFloat(m) * br.strength})`);
-            ctx.shadowBlur = l.blur * scale * 0.6;
-            ctx.shadowColor = l.shadow;
-            strokePath(ctx, br.pts);
-        }
-    }
-    ctx.restore();
+    // halo flou (petite image agrandie), puis cœur net
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(glow, 0, 0, w, h);
+    trace(ctx, 2.4 * scale, "200, 230, 255", 0.7);
+    trace(ctx, 1.1 * scale, "255, 255, 255", 1);
+
+    // fondu en haut et en bas de la zone, pour qu'on n'en voie pas les bords
+    const fade = Math.min(90, h * 0.2);
+    const mask = ctx.createLinearGradient(0, 0, 0, h);
+    mask.addColorStop(0, "rgba(0, 0, 0, 0)");
+    mask.addColorStop(fade / h, "rgba(0, 0, 0, 1)");
+    mask.addColorStop(1 - fade / h, "rgba(0, 0, 0, 1)");
+    mask.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.globalCompositeOperation = "destination-in";
+    ctx.fillStyle = mask;
+    ctx.fillRect(0, 0, w, h);
+    return off;
 }
 
 // Intensité au fil du temps : coup de foudre, petit retour, second coup, puis extinction
 function intensity(t: number): number {
+    if (t < 0) return 0;
     if (t < 70) return 1;
     if (t < 110) return 0.25;
     if (t < 170) return 0.95;
@@ -140,9 +171,10 @@ function intensity(t: number): number {
     return Math.max(0, 0.8 * Math.exp(-(t - 240) / 120));
 }
 
-export const LightningBackground = () => {
+export const LightningBackground = ({ startBelow, endAt }: Props) => {
     const wrapRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const startKey = startBelow.join("|");
 
     useEffect(() => {
         const wrap = wrapRef.current;
@@ -152,16 +184,52 @@ export const LightningBackground = () => {
         if (!ctx) return;
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-        let width = 0;
-        let height = 0;
-        let dpr = 1;
+        const startSelectors = startKey.split("|");
         let visible = false;
         let raf = 0;
         let timer: ReturnType<typeof setTimeout> | undefined;
 
-        // La toile ne fait que la taille de l'écran : on la place sur la partie visible
-        const fitCanvas = (top: number, h: number) => {
-            dpr = Math.min(window.devicePixelRatio || 1, 2);
+        // La bande autorisée, en pixels depuis le haut du calque
+        const band = () => {
+            const wrapTop = wrap.getBoundingClientRect().top;
+            let top = 0;
+            for (const sel of startSelectors) {
+                const el = document.querySelector(sel);
+                if (el) top = Math.max(top, el.getBoundingClientRect().bottom - wrapTop + 24);
+            }
+            const end = document.querySelector(endAt);
+            const bottom = end ? end.getBoundingClientRect().bottom - wrapTop + 24 : wrap.clientHeight;
+            return { top, bottom, wrapTop };
+        };
+
+        const schedule = (delay?: number) => {
+            clearTimeout(timer);
+            timer = setTimeout(strike, delay ?? 2000 + Math.random() * 4500);
+        };
+
+        // vrai si un des éléments du haut (la roue, la carte EPSI) est visible à l'écran
+        const topPartOnScreen = () =>
+            startSelectors.some((sel) => {
+                const el = document.querySelector(sel);
+                if (!el) return false;
+                const r = el.getBoundingClientRect();
+                // partie réellement visible sous le menu fixe (64 px)
+                const seen = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 64);
+                return seen > 80;
+            });
+
+        function strike() {
+            if (!visible || document.hidden || !canvas || !ctx || !wrap) return schedule();
+            if (topPartOnScreen()) return schedule(1500);
+            const { top, bottom, wrapTop } = band();
+            // partie de la bande actuellement visible à l'écran
+            const visTop = Math.max(top, -wrapTop);
+            const visBottom = Math.min(bottom, -wrapTop + window.innerHeight);
+            const h = visBottom - visTop;
+            if (h < 120) return schedule(1200);
+
+            const width = wrap.clientWidth;
+            const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
             const cw = Math.round(width * dpr);
             const ch = Math.round(h * dpr);
             if (canvas.width !== cw || canvas.height !== ch) {
@@ -170,49 +238,34 @@ export const LightningBackground = () => {
                 canvas.style.width = `${width}px`;
                 canvas.style.height = `${h}px`;
             }
-            canvas.style.top = `${top}px`;
-        };
-        const measure = () => {
-            width = wrap.clientWidth;
-            height = wrap.clientHeight;
-        };
-        measure();
-        const ro = new ResizeObserver(measure);
-        ro.observe(wrap);
+            canvas.style.top = `${visTop}px`;
 
-        const strike = () => {
-            if (!visible || document.hidden) return schedule();
-            const rect = wrap.getBoundingClientRect();
-            const top = Math.max(0, -rect.top);
-            const viewH = Math.min(height - top, window.innerHeight);
-            if (viewH < 80) return schedule();
-            fitCanvas(top, viewH);
-            const bolt = makeBolt(width, viewH);
             const scale = Math.max(0.7, Math.min(1.4, width / 1280));
-            const start = performance.now();
+            const img = renderBolt(makeBolt(width, h), width, h, dpr, scale);
             // parfois, un deuxième éclair suit de près le premier
-            const twin = Math.random() < 0.25 ? makeBolt(width, viewH) : null;
+            const twin = Math.random() < 0.25 ? renderBolt(makeBolt(width, h), width, h, dpr, scale) : null;
+            const start = performance.now();
+            const c2d = ctx;
 
             const frame = (now: number) => {
                 const t = now - start;
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                ctx.clearRect(0, 0, width, viewH);
-                drawBolt(ctx, bolt, intensity(t), scale, width);
-                if (twin) drawBolt(ctx, twin, intensity(t - 160), scale, width);
+                c2d.clearRect(0, 0, cw, ch);
+                c2d.globalAlpha = intensity(t);
+                c2d.drawImage(img, 0, 0);
+                if (twin) {
+                    c2d.globalAlpha = intensity(t - 160);
+                    c2d.drawImage(twin, 0, 0);
+                }
+                c2d.globalAlpha = 1;
                 if (t < 900) {
                     raf = requestAnimationFrame(frame);
                 } else {
-                    ctx.clearRect(0, 0, width, viewH);
+                    c2d.clearRect(0, 0, cw, ch);
                     schedule();
                 }
             };
             raf = requestAnimationFrame(frame);
-        };
-
-        const schedule = (delay?: number) => {
-            clearTimeout(timer);
-            timer = setTimeout(strike, delay ?? 2000 + Math.random() * 4500);
-        };
+        }
 
         const io = new IntersectionObserver(
             ([entry]) => {
@@ -220,17 +273,16 @@ export const LightningBackground = () => {
                 visible = entry.isIntersecting;
                 if (visible && !wasVisible) schedule(900);
             },
-            { threshold: 0.05 }
+            { threshold: 0 }
         );
         io.observe(wrap);
 
         return () => {
             io.disconnect();
-            ro.disconnect();
             clearTimeout(timer);
             cancelAnimationFrame(raf);
         };
-    }, []);
+    }, [startKey, endAt]);
 
     return (
         <div ref={wrapRef} className="absolute inset-y-0 left-0 right-0 md:-left-8 md:-right-8 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
