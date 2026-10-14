@@ -17,7 +17,7 @@ const Footer = () => {
 
   // L'enveloppe passe à gauche de GitHub ; GitHub et LinkedIn gardent leur place
   const socialLinks = [
-    { icon: <FaEnvelope />, url: `mailto:${identity.email}`, label: "E-mail" },
+    { icon: <FaEnvelope />, url: `https://mail.google.com/mail/?view=cm&fs=1&to=${identity.email}`, label: "E-mail" },
     { icon: <FaGithub />, url: identity.githubUrl, label: "GitHub" },
     ...(identity.linkedinUrl ? [{ icon: <FaLinkedin />, url: identity.linkedinUrl, label: "LinkedIn" }] : []),
   ];
