@@ -15,10 +15,11 @@ const Footer = () => {
 
   const currentYear = new Date().getFullYear();
 
+  // L'enveloppe passe à gauche de GitHub ; GitHub et LinkedIn gardent leur place
   const socialLinks = [
+    { icon: <FaEnvelope />, url: `mailto:${identity.email}`, label: "E-mail" },
     { icon: <FaGithub />, url: identity.githubUrl, label: "GitHub" },
     ...(identity.linkedinUrl ? [{ icon: <FaLinkedin />, url: identity.linkedinUrl, label: "LinkedIn" }] : []),
-    { icon: <FaEnvelope />, url: `mailto:${identity.email}`, label: "E-mail" },
   ];
 
   return (
@@ -74,6 +75,8 @@ const Footer = () => {
                 {link.icon}
               </a>
             ))}
+            {/* Case vide à l'ancienne place de l'enveloppe, pour que GitHub et LinkedIn ne bougent pas */}
+            <span aria-hidden="true" className="hidden md:block w-5 h-5" />
           </div>
         </div>
       </div>
