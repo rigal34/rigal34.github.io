@@ -9,6 +9,7 @@ import ConnectSection from "@components/Home/ConnectSection";
 import OriginStory from "@components/Home/OriginStory";
 import AcademicLog from "@components/Home/AcademicLog";
 import { AnimatedBackground } from "@components/ui/AnimatedBackground";
+import { LightningBackground } from "@components/ui/LightningBackground";
 import type { GitHubData } from "@lib/github";
 
 type Props = {
@@ -25,8 +26,12 @@ export default function HomePage({ github }: Props) {
         <OriginStory />
         <RecentProjectsNew />
         <TechArsenal />
-        <RecentWorkNew />
-        <AcademicLog />
+        {/* Parcours + Formations : éclairs en arrière-plan, mêmes espacements qu'avant */}
+        <div className="relative flex flex-col gap-8 md:gap-12">
+          <LightningBackground />
+          <RecentWorkNew />
+          <AcademicLog />
+        </div>
         <SecurityClearance />
         <PackageRegistry />
         <ConnectSection />
