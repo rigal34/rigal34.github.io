@@ -2,6 +2,7 @@ import React from "react";
 import HackerHero from "@components/Home/HackerHero";
 import RecentWorkNew from "@components/Home/RecentWorkNew";
 import RecentProjectsNew from "@components/Home/RecentProjectsNew";
+import AiTeammate from "@components/Home/AiTeammate";
 import TechArsenal from "@components/Home/TechArsenal";
 import PackageRegistry from "@components/Home/PackageRegistry";
 import SecurityClearance from "@components/Home/SecurityClearance";
@@ -25,6 +26,7 @@ export default function HomePage({ github }: Props) {
         <HackerHero github={github} />
         <OriginStory />
         <RecentProjectsNew />
+        <AiTeammate />
         <TechArsenal />
         {/* Parcours + Formations : éclairs en arrière-plan, mêmes espacements qu'avant.
             Aucun éclair autour de la roue ni de la carte EPSI : la zone commence en dessous

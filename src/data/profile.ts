@@ -66,6 +66,7 @@ export const about = {
         "AutoRent : une plateforme de location de véhicules en Symfony, conçue seul en trois mois, de la base de données à la mise en ligne.",
         "Sentinel : le tableau de bord React du sas de sécurité de mon équipe, au workshop national EPSI « Horizon 2080 ».",
         "Des automatisations n8n et Python qui récupèrent les informations et les rangent toutes seules dans Excel.",
+        "Ligne d'Eau : un site professionnel de plomberie réalisé par Claude Opus 5.5, une IA, sous ma direction, puis mis en ligne.",
     ],
     outro:
         "Permis B et véhiculé, je me déplace sans contrainte autour de Montpellier. Je me forme en ce moment à Java et Spring Boot.",
@@ -282,7 +283,77 @@ export const projects = [
         liveUrl: "",
         codeUrl: "https://github.com/rigal34/Local-IA-Sovereign-Architecture",
     },
+    {
+        id: "ligne-deau",
+        title: "Ligne d'Eau",
+        codename: "MISSION_IA_COEQUIPIER",
+        status: "EN LIGNE",
+        description:
+            "Site professionnel d'un plombier-carreleur (entreprise fictive) : vitrine des réalisations, catalogue de fournitures, demande de devis avec photos, contact et espace pro pour répondre aux clients. Réalisé par Claude Opus 5.5 sous le commandement de Bruno Rigal.",
+        tech: ["PHP 8", "SQLite", "JavaScript", "CSS", "Claude Opus 5.5"],
+        stats: { Pages: "50+", Vérifications: "48", Coéquipier: "IA" },
+        liveUrl: "https://location-voiture.alwaysdata.net/ligne-deau/",
+        codeUrl: "",
+    },
 ];
+
+// ---------- Je travaille avec une IA ----------
+// La partie qui présente le site Ligne d'Eau, réalisé par une IA sous ma direction.
+export const aiTeammate = {
+    kicker: "Nouvelle génération de développeur",
+    title: "Je travaille avec une IA",
+    credit: "Ligne d'Eau a été réalisé par Claude Opus 5.5, sous le commandement de Bruno Rigal.",
+    intro:
+        "Je ne reste pas seul face à mon code. Je travaille avec une IA comme avec un coéquipier : je fixe l'objectif, je découpe le travail, je questionne chaque choix et je vérifie le résultat avant de le mettre en ligne.",
+    resultTitle: "Le résultat : Ligne d'Eau",
+    resultText:
+        "Un site professionnel de plomberie sur plusieurs pages : douches à l'italienne, rénovation de salles de bain, vitrine des chantiers, catalogue de fournitures, demande de devis avec photos et espace pro. Adapté au téléphone, à la tablette et à l'ordinateur.",
+    resultUrl: "https://location-voiture.alwaysdata.net/ligne-deau/",
+    resultNote: "Entreprise fictive, créée pour la démonstration.",
+    // Ce que j'ai fait, et ce que l'IA a fait
+    roles: [
+        {
+            who: "Bruno Rigal · chef de projet",
+            items: [
+                "J'ai écrit le cahier des charges : les pages, la vitrine, les devis, le contact, l'affichage sur mobile.",
+                "J'ai questionné les choix techniques avant de valider le langage et l'hébergement.",
+                "J'ai piloté la mise en ligne sur AlwaysData, à côté d'AutoRent, sans le perturber.",
+            ],
+        },
+        {
+            who: "Claude Opus 5.5 · coéquipier IA",
+            items: [
+                "A écrit le code, les textes et les illustrations du site.",
+                "A testé chaque page sur téléphone, tablette et ordinateur.",
+                "A rédigé le guide d'installation et de mise en ligne.",
+            ],
+        },
+    ],
+    // Pourquoi c'est un atout pour une entreprise
+    arguments: [
+        {
+            title: "Une IA dans le nuage, une IA en local",
+            text: "Claude Opus 5.5 pour les gros chantiers. LM Studio, AnythingLLM et Whisper sur mon ordinateur quand les données doivent rester confidentielles.",
+        },
+        {
+            title: "Je garde la main",
+            text: "L'IA propose, je décide. Rien n'est mis en ligne sans que je l'aie compris et validé.",
+        },
+        {
+            title: "Un résultat vérifié",
+            text: "48 vérifications automatiques dans un vrai navigateur et un contrôle d'accessibilité aux normes WCAG, sans erreur.",
+        },
+        {
+            title: "Plus vite en production",
+            text: "Le site a été conçu, testé et mis en ligne en une journée de travail.",
+        },
+    ],
+    stats: [
+        { label: "Pages", value: "50+" },
+        { label: "Vérifications", value: "48" },
+        { label: "Accessibilité", value: "0 erreur" },
+    ],
+};
 
 // ---------- Formations ----------
 export const educations = [
