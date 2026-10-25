@@ -295,6 +295,18 @@ export const projects = [
         liveUrl: "https://location-voiture.alwaysdata.net/ligne-deau/",
         codeUrl: "",
     },
+    {
+        id: "resto-stephanie",
+        title: "Le Resto de Stéphanie",
+        codename: "WORDPRESS_PUR",
+        status: "EN LIGNE",
+        description:
+            "Site vitrine d'un restaurant provençal (fictif) créé en WordPress pur : thème officiel Twenty Twenty-Five et éditeur de blocs, sans code écrit à la main. Hébergé chez moi, sur un vieux PC sous Linux transformé en serveur (Nginx, PHP-FPM, MariaDB) et relié à Internet par un tunnel Cloudflare. Réalisé avec Claude Opus 5.5 comme coéquipier.",
+        tech: ["WordPress", "Twenty Twenty-Five", "Linux", "Nginx", "MariaDB", "Cloudflare"],
+        stats: { CMS: "WordPress", "Code ajouté": "0", Serveur: "Maison" },
+        liveUrl: "https://resto.bruno34.com",
+        codeUrl: "https://github.com/rigal34/resto-de-stephanie",
+    },
 ];
 
 // ---------- Je travaille avec une IA ----------
