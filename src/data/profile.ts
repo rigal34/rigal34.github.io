@@ -307,6 +307,18 @@ export const projects = [
         liveUrl: "https://resto.bruno34.com",
         codeUrl: "https://github.com/rigal34/resto-de-stephanie",
     },
+    {
+        id: "liste-des-taches",
+        title: "Liste des tâches",
+        codename: "JAVASCRIPT_PUR",
+        status: "EN LIGNE",
+        description:
+            "Application de liste de tâches que j'ai réalisée uniquement en JavaScript, sans framework : on entre avec son prénom, puis chaque tâche s'affiche sur une carte colorée selon son état (en cours ou terminée), avec ses tags. On peut ajouter, terminer, rouvrir ou supprimer une tâche, et suivre l'avancement sur une page de statistiques avec un graphique. L'API Node.js/Express tourne sur mon serveur Linux à la maison.",
+        tech: ["JavaScript", "Node.js", "Express", "Chart.js", "Linux"],
+        stats: { Langage: "JavaScript", Framework: "Aucun", Serveur: "Maison" },
+        liveUrl: "https://liste-des-taches.bruno34.com",
+        codeUrl: "https://github.com/rigal34/TODO-APPS",
+    },
 ];
 
 // ---------- Je travaille avec une IA ----------
