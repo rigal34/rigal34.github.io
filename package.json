@@ -19,11 +19,11 @@
     "@types/react-dom": "^19",
     "clsx": "^2.1.1",
     "eslint": "^9",
-    "eslint-config-next": "15.1.7",
+    "eslint-config-next": "15.5.29",
     "framer-motion": "^12.4.7",
     "geist": "^1.7.2",
     "maath": "^0.10.8",
-    "next": "15.1.7",
+    "next": "15.5.29",
     "postcss": "^8.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -34,5 +34,10 @@
     "three": "^0.174.0",
     "typescript": "^5"
   },
-  "description": "Portfolio de Bruno Rigal, développeur full stack à Montpellier. Basé sur nextjs-profile-portfolio de Bhushan Zade (Apache 2.0)."
+  "description": "Portfolio de Bruno Rigal, développeur full stack à Montpellier. Basé sur nextjs-profile-portfolio de Bhushan Zade (Apache 2.0).",
+  "overrides": {
+    "next": {
+      "postcss": "$postcss"
+    }
+  }
 }
